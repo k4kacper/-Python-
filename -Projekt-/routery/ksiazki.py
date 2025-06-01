@@ -13,16 +13,24 @@ def dodaj_ksiazke(ksiazka: Ksiazka):
 def pobierz_ksiazki():
     return ksiazki_db
 
-@router.delete("/ksiazki/usun/{tytul}")
-def usun_ksiazke(tytul: str):
+@router.delete("/usun/")
+def usun_ksiazke(nazwa_ksiazki: str = Query(..., description="Nazwa książki do usunięcia")):
     global ksiazki_db
 
-    ksiazka_do_usuniecia = next((k for k in ksiazki_db if k.tytul.lower() == tytul.lower()), None)
+    # Znajdź książkę do usunięcia
+    ksiazka_do_usuniecia = next((k for k in ksiazki_db if k.tytul.lower() == nazwa_ksiazki.lower()), None)
+
     if not ksiazka_do_usuniecia:
         raise HTTPException(status_code=404, detail="Nie znaleziono książki o podanym tytule")
-    ksiazki_db = [k for k in ksiazki_db if k["tytul"].lower() != tytul.lower()]
 
-    return {"wiadomosc": f"📖 Książka '{tytul}' została usunięta!"}
+    # Sprawdź czy książka nie jest wypożyczona
+    if not ksiazka_do_usuniecia.dostepna:
+        raise HTTPException(status_code=400, detail="Nie można usunąć wypożyczonej książki")
+
+    # Usuń książkę z listy
+    ksiazki_db = [k for k in ksiazki_db if k.tytul.lower() != nazwa_ksiazki.lower()]
+
+    return {"wiadomosc": f"📖 Książka '{nazwa_ksiazki}' została usunięta!"}
 
 
 

@@ -10,7 +10,7 @@ async function apiCall(url, options = {}) {
             return response;
         } else {
             const error = await response.json();
-            new Error(error.detail || 'Błąd API');
+            throw new Error(error.detail || 'Błąd API');
         }
     } catch (error) {
         alert(`Błąd: ${error.message}`);
@@ -64,17 +64,34 @@ async function pobierzKsiazki() {
         const tekstKsiazki = document.createElement("span");
         tekstKsiazki.textContent = `${ksiazka.tytul} - ${ksiazka.autor} (${ksiazka.rok}) - ${ksiazka.dostepna ? "✅ Dostępna" : "❌ Wypożyczona"}`;
 
+        // Kontener dla przycisków
+        const kontenerPrzyciskow = document.createElement("div");
+        kontenerPrzyciskow.className = "kontener-przyciskow";
+
+        // Przycisk zwrotu - zawsze widoczny, ale nieaktywny dla dostępnych książek
         const przyciskZwrotu = document.createElement("button");
         przyciskZwrotu.textContent = "🔄 Zwróć";
-        przyciskZwrotu.onclick = () => otworzZwrot(ksiazka.tytul);
 
+        if (ksiazka.dostepna) {
+            // Książka dostępna - przycisk nieaktywny
+            przyciskZwrotu.disabled = true;
+            przyciskZwrotu.style.opacity = "0.5";
+            przyciskZwrotu.style.cursor = "not-allowed";
+        } else {
+            // Książka wypożyczona - przycisk aktywny
+            przyciskZwrotu.onclick = () => otworzZwrot(ksiazka.tytul);
+        }
+
+        // Przycisk usuwania
         const przyciskUsun = document.createElement("button");
         przyciskUsun.textContent = "🗑 Usuń";
         przyciskUsun.onclick = () => usunKsiazke(ksiazka.tytul);
 
+        kontenerPrzyciskow.appendChild(przyciskZwrotu);
+        kontenerPrzyciskow.appendChild(przyciskUsun);
+
         element.appendChild(tekstKsiazki);
-        element.appendChild(przyciskZwrotu);
-        element.appendChild(przyciskUsun);
+        element.appendChild(kontenerPrzyciskow);
         listaKsiazek.appendChild(element);
     });
 }
@@ -82,11 +99,13 @@ async function pobierzKsiazki() {
 function otworzZwrot(nazwaKsiazki) {
     document.getElementById("zwrotContainer").style.display = "block";
     document.getElementById("zwrotKsiazka").textContent = `Zwracasz książkę: ${nazwaKsiazki}`;
+    document.getElementById("emailZwrot").value = "";
     document.getElementById("emailZwrot").focus();
 }
 
 function zamknijZwrot() {
     document.getElementById("zwrotContainer").style.display = "none";
+    clearInputs("emailZwrot");
 }
 
 async function usunKsiazke(nazwaKsiazki) {
@@ -163,7 +182,7 @@ async function wyszukajKsiazke() {
         const lista = document.getElementById("wyniki");
         lista.innerHTML = wyniki.length === 0
             ? "<li>Brak wyników.</li>"
-            : wyniki.map(k => `<li>${k.tytul} - ${k.autor} (${k.rok})</li>`).join("");
+            : wyniki.map(k => `<li>${k.tytul} - ${k.autor} (${k.rok}) - ${k.dostepna ? "✅ Dostępna" : "❌ Wypożyczona"}</li>`).join("");
 
     } catch (error) {
         showMessage("Błąd wyszukiwania!");
@@ -185,7 +204,7 @@ async function dodajUzytkownika() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                id: Date.now(), // Dodanie id użytkownika
+                id: Date.now(),
                 imie,
                 email
             })
@@ -199,11 +218,12 @@ async function dodajUzytkownika() {
                 errorData = { detail: "Nieznany błąd serwera" };
             }
             console.error("Błąd serwera:", errorData);
-            alert(`Błąd: ${JSON.stringify(errorData)}`);
+            alert(`Błąd: ${errorData.detail}`);
             return;
         }
 
         alert("Użytkownik dodany!");
+        clearInputs("imie", "email");
         await pobierzUzytkownikow();
     } catch (error) {
         console.error("Błąd połączenia:", error);
@@ -212,6 +232,8 @@ async function dodajUzytkownika() {
 }
 
 async function usunUzytkownika(id) {
+    if (!confirm("Czy na pewno chcesz usunąć tego użytkownika?")) return;
+
     try {
         await apiCall(`${apiUrl}/uzytkownicy/${id}`, { method: "DELETE" });
         showMessage("Użytkownik usunięty!");
@@ -231,12 +253,16 @@ async function pobierzUzytkownikow() {
 
         uzytkownicy.forEach(u => {
             const li = document.createElement("li");
-            li.textContent = `${u.imie} - ${u.email}`;
+
+            const tekst = document.createElement("span");
+            tekst.textContent = `${u.imie} - ${u.email}`;
+            tekst.style.flex = "1";
 
             const btnUsun = document.createElement("button");
             btnUsun.textContent = "❌ Usuń";
             btnUsun.onclick = () => usunUzytkownika(u.id);
 
+            li.appendChild(tekst);
             li.appendChild(btnUsun);
             lista.appendChild(li);
         });
@@ -263,7 +289,8 @@ async function wypozyczKsiazke() {
 
         if (response.ok) {
             alert("Książka wypożyczona!");
-            await pobierzKsiazki();  // 💡 Automatyczne odświeżenie listy książek
+            clearInputs("nazwaKsiazki", "emailUzytkownika");
+            await pobierzKsiazki();
         } else {
             const errorData = await response.json();
             alert(`Błąd: ${errorData.detail}`);
@@ -274,7 +301,7 @@ async function wypozyczKsiazke() {
 }
 
 function formatDate(dateString) {
-    if (!dateString) return "Nie zwrócono";  // Obsługa pustych wartości
+    if (!dateString) return "Nie zwrócono";
     const date = new Date(dateString);
     return date.toLocaleString("pl-PL");
 }
@@ -286,24 +313,56 @@ async function pobierzHistorie() {
         return;
     }
 
-    const response = await fetch(`${apiUrl}/wypozyczenia/historia/${encodeURIComponent(emailUzytkownika)}`);
-    const historia = await response.json();
+    try {
+        const response = await fetch(`${apiUrl}/wypozyczenia/historia/${encodeURIComponent(emailUzytkownika)}`);
+        const historia = await response.json();
 
-    const listaHistoria = document.getElementById("listaHistoria");
-    listaHistoria.innerHTML = "";
+        const listaHistoria = document.getElementById("listaHistoria");
+        listaHistoria.innerHTML = "";
 
-    historia.historia.forEach(w => {
-        const element = document.createElement("li");
-        element.textContent = `📖 ${w.nazwaKsiazki} | Wypożyczono: ${formatDate(w.wypozyczono_date)} | Zwrot: ${w.return_date ? formatDate(w.return_date) : "Nie zwrócono"}`;
-        listaHistoria.appendChild(element);
-    });
+        if (historia.historia && historia.historia.length > 0) {
+            historia.historia.forEach(w => {
+                const element = document.createElement("li");
+                element.textContent = `📖 ${w.nazwaKsiazki} | Wypożyczono: ${formatDate(w.wypozyczono_date)} | Zwrot: ${w.return_date ? formatDate(w.return_date) : "Nie zwrócono"}`;
+                listaHistoria.appendChild(element);
+            });
+        } else {
+            const element = document.createElement("li");
+            element.textContent = "Brak historii wypożyczeń dla tego użytkownika.";
+            listaHistoria.appendChild(element);
+        }
+    } catch (error) {
+        alert("Błąd pobierania historii!");
+    }
 }
+async function szybkiZwrot(nazwaKsiazki, emailUzytkownika) {
+    if (!confirm(`Czy na pewno chcesz zwrócić książkę "${nazwaKsiazki}" dla użytkownika ${emailUzytkownika}?`)) return;
 
+    try {
+        const response = await fetch(`${apiUrl}/wypozyczenia/zwroc/`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nazwa_ksiazki: nazwaKsiazki, email_uzytkownika: emailUzytkownika })
+        });
 
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(`Błąd: ${errorData.detail}`);
+            return;
+        }
+
+        alert("📖 Książka zwrócona!");
+        await pobierzKsiazki();
+        await pobierzWypozyczenia();
+    } catch (error) {
+        console.error("❌ Błąd połączenia:", error);
+        alert("Nie udało się połączyć z serwerem!");
+    }
+}
 // INICJALIZACJA
 window.onload = () => {
-    pobierzKsiazki().then();
-    pobierzUzytkownikow().then();
+    pobierzKsiazki();
+    pobierzUzytkownikow();
 
     // Event listenery dla wyszukiwania
     document.getElementById("szukajTytul").addEventListener("input", wyszukajKsiazke);

@@ -12,6 +12,11 @@ class WypozyczRequest(BaseModel):
     nazwaKsiazki: str
     emailUzytkownika: EmailStr
 
+# Model dla żądania zwrotu
+class ZwrotRequest(BaseModel):
+    nazwa_ksiazki: str
+    email_uzytkownika: EmailStr
+
 # Funkcja pomocnicza do znajdowania książki
 def znajdz_ksiazke(nazwaKsiazki: str):
     return next((ksiazka for ksiazka in ksiazki_db if ksiazka.tytul.lower() == nazwaKsiazki.lower()), None)
@@ -19,6 +24,15 @@ def znajdz_ksiazke(nazwaKsiazki: str):
 # Funkcja pomocnicza do znajdowania wypożyczenia
 def znajdz_wypozyczenie(wypozyczenie_id: int):
     return next((wypozyczenie for wypozyczenie in wypozyczenia_db if wypozyczenie.id == wypozyczenie_id), None)
+
+def znajdz_aktywne_wypozyczenie(nazwa_ksiazki: str, email_uzytkownika: str):
+    return next(
+        (w for w in wypozyczenia_db
+         if w.nazwaKsiazki.lower() == nazwa_ksiazki.lower()
+         and w.emailUzytkownika.lower() == email_uzytkownika.lower()
+         and not w.return_date),
+        None
+    )
 
 @router.post("/wypozycz/")
 def wypozycz_ksiazke(request: WypozyczRequest):
@@ -46,22 +60,26 @@ def wypozycz_ksiazke(request: WypozyczRequest):
 
     return {"wiadomosc": "Książka wypożyczona!", "wypozyczenie": wypozyczenie}
 
+
 @router.put("/zwroc/")
-def zwroc_ksiazke(nazwa_ksiazki: str, email_uzytkownika: str):
-    wypozyczenie = next(
-        (w for w in wypozyczenia_db if w.nazwa_ksiazki.lower() == nazwa_ksiazki.lower() and w.email_uzytkownika.lower() == email_uzytkownika.lower() and not w.return_date),
-        None
-    )
+def zwroc_ksiazke(request: ZwrotRequest):
+    # Znajdź aktywne wypożyczenie
+    wypozyczenie = znajdz_aktywne_wypozyczenie(request.nazwa_ksiazki, request.email_uzytkownika)
 
     if not wypozyczenie:
-        raise HTTPException(status_code=404, detail="Nie znaleziono wypożyczenia dla tej książki i użytkownika")
+        raise HTTPException(status_code=404,
+                            detail="Nie znaleziono aktywnego wypożyczenia dla tej książki i użytkownika")
 
-    ksiazka = next((k for k in ksiazki_db if k.tytul.lower() == nazwa_ksiazki.lower()), None)
+    # Znajdź książkę i oznacz jako dostępną
+    ksiazka = znajdz_ksiazke(request.nazwa_ksiazki)
     if ksiazka:
         ksiazka.dostepna = True
 
+    # Ustaw datę zwrotu
     wypozyczenie.return_date = datetime.now()
+
     return {"wiadomosc": "📖 Książka zwrócona!", "wypozyczenie": wypozyczenie}
+
 
 @router.get("/historia/{emailUzytkownika}")
 def historia_wypozyczen(emailUzytkownika: EmailStr):
