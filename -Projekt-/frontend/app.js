@@ -1,8 +1,7 @@
 const apiUrl = window.location.origin.includes("localhost")
     ? "http://127.0.0.1:8080"
-    : "https://ksiazki-api.herokuapp.com";
+    : "";
 
-// Funkcje pomocnicze
 async function apiCall(url, options = {}) {
     try {
         const response = await fetch(url, options);
@@ -47,7 +46,6 @@ async function dodajKsiazke() {
         clearInputs("tytul", "autor", "rok");
         await pobierzKsiazki();
     } catch (error) {
-        // Błąd już obsłużony w apiCall
     }
 }
 
@@ -64,25 +62,20 @@ async function pobierzKsiazki() {
         const tekstKsiazki = document.createElement("span");
         tekstKsiazki.textContent = `${ksiazka.tytul} - ${ksiazka.autor} (${ksiazka.rok}) - ${ksiazka.dostepna ? "✅ Dostępna" : "❌ Wypożyczona"}`;
 
-        // Kontener dla przycisków
         const kontenerPrzyciskow = document.createElement("div");
         kontenerPrzyciskow.className = "kontener-przyciskow";
 
-        // Przycisk zwrotu - zawsze widoczny, ale nieaktywny dla dostępnych książek
         const przyciskZwrotu = document.createElement("button");
         przyciskZwrotu.textContent = "🔄 Zwróć";
 
         if (ksiazka.dostepna) {
-            // Książka dostępna - przycisk nieaktywny
             przyciskZwrotu.disabled = true;
             przyciskZwrotu.style.opacity = "0.5";
             przyciskZwrotu.style.cursor = "not-allowed";
         } else {
-            // Książka wypożyczona - przycisk aktywny
             przyciskZwrotu.onclick = () => otworzZwrot(ksiazka.tytul);
         }
 
-        // Przycisk usuwania
         const przyciskUsun = document.createElement("button");
         przyciskUsun.textContent = "🗑 Usuń";
         przyciskUsun.onclick = () => usunKsiazke(ksiazka.tytul);
@@ -123,10 +116,8 @@ async function usunKsiazke(nazwaKsiazki) {
         }
 
         alert("📖 Książka usunięta!");
-        await pobierzKsiazki(); // Automatyczne odświeżenie listy książek
+        await pobierzKsiazki();
     } catch (error) {
-        console.error("❌ Błąd połączenia:", error);
-        alert("Nie udało się połączyć z serwerem!");
     }
 }
 
@@ -156,8 +147,6 @@ async function potwierdzZwrot() {
         await pobierzKsiazki();
         zamknijZwrot();
     } catch (error) {
-        console.error("❌ Błąd połączenia:", error);
-        alert("Nie udało się połączyć z serwerem!");
     }
 }
 
@@ -184,8 +173,7 @@ async function wyszukajKsiazke() {
             ? "<li>Brak wyników.</li>"
             : wyniki.map(k => `<li>${k.tytul} - ${k.autor} (${k.rok}) - ${k.dostepna ? "✅ Dostępna" : "❌ Wypożyczona"}</li>`).join("");
 
-    } catch (error) {
-        showMessage("Błąd wyszukiwania!");
+    } catch (error){
     }
 }
 
@@ -225,9 +213,7 @@ async function dodajUzytkownika() {
         alert("Użytkownik dodany!");
         clearInputs("imie", "email");
         await pobierzUzytkownikow();
-    } catch (error) {
-        console.error("Błąd połączenia:", error);
-        alert("Nie udało się połączyć z serwerem.");
+    } catch (error){
     }
 }
 
@@ -239,7 +225,6 @@ async function usunUzytkownika(id) {
         showMessage("Użytkownik usunięty!");
         await pobierzUzytkownikow();
     } catch (error) {
-        // Błąd już obsłużony w apiCall
     }
 }
 
@@ -266,8 +251,7 @@ async function pobierzUzytkownikow() {
             li.appendChild(btnUsun);
             lista.appendChild(li);
         });
-    } catch (error) {
-        showMessage("Błąd pobierania użytkowników!");
+    } catch (error){
     }
 }
 
@@ -295,17 +279,9 @@ async function wypozyczKsiazke() {
             const errorData = await response.json();
             alert(`Błąd: ${errorData.detail}`);
         }
-    } catch (error) {
-        alert("Błąd połączenia z serwerem!");
+    } catch (error){
     }
 }
-
-function formatDate(dateString) {
-    if (!dateString) return "Nie zwrócono";
-    const date = new Date(dateString);
-    return date.toLocaleString("pl-PL");
-}
-
 async function pobierzHistorie() {
     const emailUzytkownika = document.getElementById("emailUzytkownikaHistoria").value.trim();
     if (!emailUzytkownika) {
@@ -316,55 +292,25 @@ async function pobierzHistorie() {
     try {
         const response = await fetch(`${apiUrl}/wypozyczenia/historia/${encodeURIComponent(emailUzytkownika)}`);
         const historia = await response.json();
+        historia.historia = undefined;
 
         const listaHistoria = document.getElementById("listaHistoria");
         listaHistoria.innerHTML = "";
 
-        if (historia.historia && historia.historia.length > 0) {
-            historia.historia.forEach(w => {
-                const element = document.createElement("li");
-                element.textContent = `📖 ${w.nazwaKsiazki} | Wypożyczono: ${formatDate(w.wypozyczono_date)} | Zwrot: ${w.return_date ? formatDate(w.return_date) : "Nie zwrócono"}`;
-                listaHistoria.appendChild(element);
-            });
-        } else {
-            const element = document.createElement("li");
-            element.textContent = "Brak historii wypożyczeń dla tego użytkownika.";
-            listaHistoria.appendChild(element);
-        }
-    } catch (error) {
-        alert("Błąd pobierania historii!");
+        const element = document.createElement("li");
+        element.textContent = "Brak historii wypożyczeń dla tego użytkownika.";
+        listaHistoria.appendChild(element);
+    } catch (error){
     }
 }
-async function szybkiZwrot(nazwaKsiazki, emailUzytkownika) {
-    if (!confirm(`Czy na pewno chcesz zwrócić książkę "${nazwaKsiazki}" dla użytkownika ${emailUzytkownika}?`)) return;
-
-    try {
-        const response = await fetch(`${apiUrl}/wypozyczenia/zwroc/`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nazwa_ksiazki: nazwaKsiazki, email_uzytkownika: emailUzytkownika })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            alert(`Błąd: ${errorData.detail}`);
-            return;
-        }
-
-        alert("📖 Książka zwrócona!");
-        await pobierzKsiazki();
-        await pobierzWypozyczenia();
-    } catch (error) {
-        console.error("❌ Błąd połączenia:", error);
-        alert("Nie udało się połączyć z serwerem!");
-    }
+function wyczyscHistorie() {
+    const listaHistoria = document.getElementById("listaHistoria");
+    listaHistoria.innerHTML = "<li>🗑 Historia została wyczyszczona.</li>";
 }
-// INICJALIZACJA
+
 window.onload = () => {
     pobierzKsiazki();
     pobierzUzytkownikow();
-
-    // Event listenery dla wyszukiwania
     document.getElementById("szukajTytul").addEventListener("input", wyszukajKsiazke);
     document.getElementById("szukajAutor").addEventListener("input", wyszukajKsiazke);
     document.getElementById("dodajUzytkownika").onclick = dodajUzytkownika;

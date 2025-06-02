@@ -2,7 +2,6 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioteka Online</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,62 +10,64 @@
 
     <section id="dodaj-ksiazke">
         <h2>Dodaj Książkę</h2>
-        <input type="text" id="tytul" placeholder="Tytuł książki"><br>
-        <input type="text" id="autor" placeholder="Autor"><br>
-        <input type="number" id="rok" placeholder="Rok wydania"><br>
+        <label for="tytul"></label><input type="text" id="tytul" placeholder="Tytuł książki"><br>
+        <label for="autor"></label><input type="text" id="autor" placeholder="Autor"><br>
+        <label for="rok"></label><input type="number" id="rok" placeholder="Rok wydania"><br>
         <button onclick="dodajKsiazke()">✅ Dodaj</button>
     </section>
 
-<section id="listaKsiazek">
-    <h2>Lista Książek</h2>
-    <ul id="ksiazki"></ul>
-</section>
+    <section id="listaKsiazek">
+        <h2>Lista Książek</h2>
+        <ul id="ksiazki"></ul>
+    </section>
 
-<div id="zwrotContainer" style="display: none;">
+    <div id="zwrotContainer" style="display: none;">
         <h2>Zwrot książki</h2>
         <p id="zwrotKsiazka"></p>
-        <input type="email" id="emailZwrot" placeholder="Podaj e-mail użytkownika">
+        <label for="emailZwrot"></label><input type="email" id="emailZwrot" placeholder="Podaj e-mail użytkownika">
         <button onclick="potwierdzZwrot()">📖 Potwierdź zwrot</button>
         <button onclick="zamknijZwrot()">❌ Anuluj</button>
     </div>
 
-<section id="wyszukaj-ksiazke">
-    <h2>Wyszukaj Książkę</h2>
-    <input type="text" id="szukajTytul" placeholder="Tytuł książki">
-    <input type="text" id="szukajAutor" placeholder="Autor książki">
-</section>
+    <section id="wyszukaj-ksiazke">
+        <h2>Wyszukaj Książkę</h2>
+        <label for="szukajTytul"></label><input type="text" id="szukajTytul" placeholder="Tytuł książki">
+        <label for="szukajAutor"></label><input type="text" id="szukajAutor" placeholder="Autor książki">
+    </section>
 
-<section id="wyniki-wyszukiwania">
-    <h2>Wyniki wyszukiwania</h2>
-    <ul id="wyniki"></ul>
-</section>
+    <section id="wyniki-wyszukiwania">
+        <h2>Wyniki wyszukiwania</h2>
+        <ul id="wyniki"></ul>
+    </section>
 
-<section id="dodaj-uzytkownika">
-    <h2>Dodaj Użytkownika</h2>
-    <input type="text" id="imie" placeholder="Imię">
-    <input type="email" id="email" placeholder="E-mail">
-    <button id="dodajUzytkownika">✅ Dodaj</button>
-</section>
+    <section id="dodaj-uzytkownika">
+        <h2>Dodaj Użytkownika</h2>
+        <label for="imie"></label><input type="text" id="imie" placeholder="Imię">
+        <label for="email"></label><input type="email" id="email" placeholder="E-mail">
+        <button id="dodajUzytkownika">✅ Dodaj</button>
+    </section>
 
-<section id="lista-uzytkownikow">
-    <h2>Lista Użytkowników</h2>
-    <ul id="uzytkownicy"></ul>
-</section>
-<section id="wypozyczenia">
-    <h2>Wypożycz książkę</h2>
-    <input type="text" id="nazwaKsiazki" placeholder="Nazwa książki">
-    <input type="email" id="emailUzytkownika" placeholder="E-mail użytkownika">
-    <button onclick="wypozyczKsiazke()">📖 Wypożycz</button>
-</section>
+    <section id="lista-uzytkownikow">
+        <h2>Lista Użytkowników</h2>
+        <ul id="uzytkownicy"></ul>
+    </section>
 
-<section id="historia">
-    <h2>Historia wypożyczeń</h2>
-    <input type="email" id="emailUzytkownikaHistoria" placeholder="E-mail użytkownika">
-    <button onclick="pobierzHistorie()">📜 Zobacz historię</button>
-    <ul id="listaHistoria"></ul>
-</section>
+    <section id="wypozyczenia">
+        <h2>Wypożycz książkę</h2>
+        <label for="nazwaKsiazki"></label><input type="text" id="nazwaKsiazki" placeholder="Nazwa książki">
+        <label for="emailUzytkownika"></label><input type="email" id="emailUzytkownika" placeholder="E-mail użytkownika">
+        <button onclick="wypozyczKsiazke()">📖 Wypożycz</button>
+    </section>
 
-<script src="app.js"></script>
+    <section id="historia">
+        <h2>Historia wypożyczeń</h2>
+        <label for="emailUzytkownikaHistoria"></label><input type="email" id="emailUzytkownikaHistoria" placeholder="E-mail użytkownika">
+        <button onclick="pobierzHistorie()">📜 Zobacz historię</button>
+        <button onclick="wyczyscHistorie()">🗑 Wyczyść historię</button>
 
+        <ul id="listaHistoria"></ul>
+    </section>
+
+    <script src="app.js"></script>
 </body>
 </html>
