@@ -10,18 +10,18 @@ def worker(pid, n, locks, cycles, counts):
     left, right = pid, (pid + 1) % n
     for i in range(1, cycles + 1):
         t = random.uniform(0.05, 0.25)
-        print(f"{C_ID}P{pid}{C_ACTION} myśli ({i}/{cycles}) {t:.2f}s{C_RST}")
+        print(f"{C_ID}P{pid + 1}{C_ACTION} myśli ({i}/{cycles}) {t:.2f}s{C_RST}")
         time.sleep(t)
         first, second = (left, right) if left < right else (right, left)
         locks[first].acquire()
         locks[second].acquire()
         t = random.uniform(0.02, 0.12)
-        print(f"{C_OK}P{pid}{C_ACTION} je pałeczki ({left},{right}) {t:.2f}s{C_RST}")
+        print(f"{C_OK}P{pid + 1}{C_ACTION} je pałeczki ({left + 1},{right + 1}) {t:.2f}s{C_RST}")
         time.sleep(t)
         counts[pid] += 1
         locks[second].release()
         locks[first].release()
-    print(f"{C_ID}P{pid}{C_ACTION} zakończył (zjadł {counts[pid]} razy){C_RST}")
+    print(f"{C_ID}P{pid + 1}{C_ACTION} zakończył (zjadł {counts[pid]} razy){C_RST}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -50,7 +50,7 @@ def main():
     print(" PODSUMOWANIE UCZTY FILOZOFÓW")
     print("=" * 35 + C_RST)
     for i, eaten in enumerate(counts):
-        print(f"{C_ID}Filozof {i}:{C_OK} zjadł {eaten} razy{C_RST}")
+        print(f"{C_ID}Filozof {i + 1}:{C_OK} zjadł {eaten} razy{C_RST}")
     print(C_TITLE + f"\nŁączny czas symulacji: {total:.2f}s" + C_RST)
     print("=" * 35 + C_RST)
 

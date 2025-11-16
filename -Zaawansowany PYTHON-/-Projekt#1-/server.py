@@ -1,69 +1,59 @@
-#!/usr/bin/env python3
-"""
-server.py - prosty, stabilny serwer TCP JSON (newline-delimited)
-Kompatybilny z client_gui_clean.py (akcje: login, balance, list_users, transfer, logout).
-- Host: 0.0.0.0
-- Port: 9999
-- Prosta in-memory DB z kilkoma kontami demo
-- Współbieżność: wątek na klienta + lock do DB i listy połączeń
-- Obsługa fragmentowanych wiadomości (buffer + split by '\n')
-"""
-
 import socket
 import threading
 import json
 import traceback
 
+# Adres hosta i port serwera
 HOST = "0.0.0.0"
 PORT = 9999
 
+# Blokady wątków – zabezpieczenie przed równoczesnym zapisem do danych
 db_lock = threading.Lock()
 clients_lock = threading.Lock()
 
-# In-memory DB: username -> {password, balance}
+# Baza użytkowników w pamięci
+# Klucz: nazwa użytkownika, Wartość: słownik z hasłem i saldem
 users_db = {
     "alice": {"password": "alice123", "balance": 1000.0},
     "bob":   {"password": "bobpass",   "balance": 500.0},
     "carol": {"password": "carolpw",   "balance": 750.0},
 }
 
-# connected clients: list of dicts {conn, addr, username}
+# Lista aktywnych klientów: każdy to słownik {conn, addr, username}
 connected_clients = []
 
-# helper: wysyłka JSON z newline
+# Funkcja pomocnicza – wysyła dane w formacie JSON zakończone znakiem nowej linii
 def send_json(conn, obj):
     try:
         data = json.dumps(obj, ensure_ascii=False) + "\n"
         conn.sendall(data.encode("utf-8"))
     except Exception:
-        # ignore send errors quietly
         pass
 
+# Wysyła powiadomienie do wszystkich zalogowanych klientów
 def broadcast_notification(message, exclude_conn=None):
-    """Wyślij powiadomienie 'notification' do wszystkich zalogowanych klientów,
-       opcjonalnie pomijając exclude_conn (np. nadawcę)."""
     with clients_lock:
         for c in connected_clients:
             if c.get("username") and c["conn"] is not exclude_conn:
                 send_json(c["conn"], {"type": "notification", "message": message})
 
+# Obsługa pojedynczego klienta
 def handle_client(conn, addr):
     client = {"conn": conn, "addr": addr, "username": None}
     with clients_lock:
         connected_clients.append(client)
 
     try:
-        # powitanie od razu po połączeniu
+        # Wysyła wiadomość powitalną natychmiast po połączeniu
         send_json(conn, {"type": "welcome", "message": "Witaj w prostym serwerze bankowym. Zaloguj się (action:'login')."})
 
         buffer = ""
         while True:
             data = conn.recv(4096)
             if not data:
-                # połączenie zamknięte przez klienta
                 break
             buffer += data.decode("utf-8", errors="replace")
-            # przetwarzaj pełne linie zakończone '\n'
+            # Przetwarzanie pełnych linii zakończonych znakiem nowej linii
             while "\n" in buffer:
                 line, buffer = buffer.split("\n", 1)
                 line = line.strip()
@@ -77,7 +67,7 @@ def handle_client(conn, addr):
 
                 action = req.get("action", "").lower()
 
-                # LOGIN
+                # Logowanie użytkownika
                 if action == "login":
                     username = req.get("username")
                     password = req.get("password")
@@ -92,7 +82,8 @@ def handle_client(conn, addr):
                             broadcast_notification(f"Użytkownik {username} się zalogował.", exclude_conn=conn)
                         else:
                             send_json(conn, {"type":"login_failed", "message":"Nieprawidłowy login lub hasło"})
-                # BALANCE
+
+                # Żądanie sprawdzenia salda
                 elif action == "balance":
                     if not client.get("username"):
                         send_json(conn, {"type":"error", "message":"Nie jesteś zalogowany"})
@@ -100,7 +91,8 @@ def handle_client(conn, addr):
                     with db_lock:
                         bal = users_db[client["username"]]["balance"]
                     send_json(conn, {"type":"balance", "balance": bal})
-                # LIST USERS
+
+                # Żądanie listy wszystkich użytkowników
                 elif action == "list_users":
                     if not client.get("username"):
                         send_json(conn, {"type":"error", "message":"Nie jesteś zalogowany"})
@@ -108,7 +100,8 @@ def handle_client(conn, addr):
                     with db_lock:
                         lst = [{"username": u, "balance": users_db[u]["balance"]} for u in users_db]
                     send_json(conn, {"type":"users", "users": lst})
-                # TRANSFER
+
+                # Wykonanie przelewu
                 elif action == "transfer":
                     if not client.get("username"):
                         send_json(conn, {"type":"error", "message":"Nie jesteś zalogowany"})
@@ -135,15 +128,16 @@ def handle_client(conn, addr):
                         if sender["balance"] < amount:
                             send_json(conn, {"type":"error", "message":"Niewystarczające środki"})
                             continue
-                        # wykonaj przelew
+                        # Aktualizacja sald po przelewie
                         sender["balance"] -= amount
                         receiver["balance"] += amount
                         sender_balance = sender["balance"]
-                    # potwierdzenie nadawcy
+                    # Potwierdzenie dla nadawcy
                     send_json(conn, {"type":"transfer_ok", "message": f"Przelew do {to_user} wykonany", "balance": sender_balance})
-                    # powiadom innych (wyślij także do odbiorcy jeśli zalogowany)
+                    # Powiadomienie innych klientów
                     broadcast_notification(f"{client['username']} przelał {amount:.2f} do {to_user}.", exclude_conn=None)
-                # LOGOUT
+
+                # Wylogowanie użytkownika
                 elif action == "logout":
                     if client.get("username"):
                         name = client["username"]
@@ -154,12 +148,12 @@ def handle_client(conn, addr):
                         send_json(conn, {"type":"error", "message":"Nie byłeś zalogowany"})
                 else:
                     send_json(conn, {"type":"error", "message":"Nieznana akcja"})
+
     except Exception as e:
-        # logujemy wyjątek na serwerze, klient dostanie tylko komunikat o zerwaniu połączenia
         print("Błąd w wątku klienta:", e)
         traceback.print_exc()
     finally:
-        # cleanup
+        # Usunięcie klienta z listy i zamknięcie połączenia
         with clients_lock:
             if client in connected_clients:
                 connected_clients.remove(client)
@@ -171,6 +165,7 @@ def handle_client(conn, addr):
             pass
         print("Połączenie zamknięte:", addr)
 
+# Główna funkcja uruchamiająca serwer
 def main():
     print(f"Start serwera na {HOST}:{PORT}")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
