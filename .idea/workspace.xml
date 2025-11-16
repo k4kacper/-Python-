@@ -5,10 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f632bfbd-c2f1-4f94-bebb-a43d64fe18d6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/-Zaawansowany PYTHON-/Dekoratory.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/-Zaawansowany PYTHON-/Iteratory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_06_2025_13_29_[Changes]1/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_06_2025_13_29__Changes_1.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#1-/client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#1-/client_gui.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#1-/server.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#2-/Filozofowie.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/-Zaawansowany PYTHON-/Generatory.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/-Zaawansowany PYTHON-/Wyrazenia_regularne.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -54,34 +57,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;HTTP Request.generated-requests | #1.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.-Projekt-.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Dekoratory.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Iteratory.executor&quot;: &quot;Run&quot;,
-    &quot;Python.__init__.executor&quot;: &quot;Run&quot;,
-    &quot;Python.baza_danych.executor&quot;: &quot;Run&quot;,
-    &quot;Python.lab1_d.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.users.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "HTTP Request.generated-requests | #1.executor": "Run",
+    "JavaScript Debug.index.html.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.-Projekt-.executor": "Run",
+    "Python.Dekoratory.executor": "Run",
+    "Python.Filozofowie.executor": "Run",
+    "Python.Generatory.executor": "Run",
+    "Python.Iteratory.executor": "Run",
+    "Python.Wyrazenia_regularne.executor": "Run",
+    "Python.__init__.executor": "Run",
+    "Python.baza_danych.executor": "Run",
+    "Python.client.executor": "Run",
+    "Python.client_gui.executor": "Run",
+    "Python.lab1_d.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.server.executor": "Run",
+    "Python.users.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "deletionFromPopupRequiresConfirmation": "false",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "vcs.Subversion.Network",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\k4kacper\Documents\GitHub\-Python-\Zaawansowany PYTHON" />
@@ -95,6 +104,9 @@
         <option value="bundled-python-sdk-657d8234b839-64d779b69b7a-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26927.74" />
       </set>
     </attachedChunks>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\k4kacper\AppData\Roaming\Subversion</configuration>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -119,6 +131,12 @@
       <workItem from="1760970480276" duration="3540000" />
       <workItem from="1761038954850" duration="3332000" />
       <workItem from="1761589128585" duration="403000" />
+      <workItem from="1761647955650" duration="4655000" />
+      <workItem from="1762115952292" duration="12000" />
+      <workItem from="1762252450598" duration="3868000" />
+      <workItem from="1762451009379" duration="1699000" />
+      <workItem from="1762885957543" duration="197000" />
+      <workItem from="1762886396236" duration="5178000" />
     </task>
     <servers />
   </component>
@@ -137,12 +155,22 @@
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/server_py$server.coverage" NAME="server Coverage Results" MODIFIED="1762889439298" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#1-" />
     <SUITE FILE_PATH="coverage/_Python_$lab1_d.coverage" NAME="lab1_d Coverage Results" MODIFIED="1748429482488" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Podstawy-" />
-    <SUITE FILE_PATH="coverage/_Python_$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1748683312330" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Projekt-/routers" />
-    <SUITE FILE_PATH="coverage/_Python_$main.coverage" NAME="main Coverage Results" MODIFIED="1748812135194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Projekt-" />
-    <SUITE FILE_PATH="coverage/main_py$Dekoratory.coverage" NAME="Dekoratory Coverage Results" MODIFIED="1760984026114" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-" />
+    <SUITE FILE_PATH="coverage/Wyrazenia_regularne_py$client.coverage" NAME="client Coverage Results" MODIFIED="1762451125107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#1-" />
+    <SUITE FILE_PATH="coverage/Generatory_py$Generatory.coverage" NAME="Generatory Coverage Results" MODIFIED="1762886145006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-" />
+    <SUITE FILE_PATH="coverage/Wyrazenia_regularne_py$Generatory.coverage" NAME="Generatory Coverage Results" MODIFIED="1762256288288" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-" />
     <SUITE FILE_PATH="coverage/main_py$Iteratory.coverage" NAME="Iteratory Coverage Results" MODIFIED="1761589524215" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-" />
     <SUITE FILE_PATH="coverage/_Python_$baza_danych.coverage" NAME="baza_danych Coverage Results" MODIFIED="1748683390182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Projekt-/database" />
+    <SUITE FILE_PATH="coverage/Wyrazenia_regularne_py$server.coverage" NAME="server Coverage Results" MODIFIED="1762451107615" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#1-" />
     <SUITE FILE_PATH="coverage/_Python_$users.coverage" NAME="users Coverage Results" MODIFIED="1748509125927" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Projekt-/routers" />
+    <SUITE FILE_PATH="coverage/Wyrazenia_regularne_py$Filozofowie.coverage" NAME="Filozofowie Coverage Results" MODIFIED="1762452822806" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#2-" />
+    <SUITE FILE_PATH="coverage/_Python_$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1748683312330" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Projekt-/routers" />
+    <SUITE FILE_PATH="coverage/_Python_$main.coverage" NAME="main Coverage Results" MODIFIED="1748812135194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Projekt-" />
+    <SUITE FILE_PATH="coverage/main_py$Wyrazenia_regularne.coverage" NAME="Wyrazenia_regularne Coverage Results" MODIFIED="1761651904663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-" />
+    <SUITE FILE_PATH="coverage/main_py$Dekoratory.coverage" NAME="Dekoratory Coverage Results" MODIFIED="1760984026114" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-" />
+    <SUITE FILE_PATH="coverage/server_py$client.coverage" NAME="client Coverage Results" MODIFIED="1762887511897" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#1-" />
+    <SUITE FILE_PATH="coverage/server_py$client_gui.coverage" NAME="client_gui Coverage Results" MODIFIED="1762890856451" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#1-" />
+    <SUITE FILE_PATH="coverage/server_py$Filozofowie.coverage" NAME="Filozofowie Coverage Results" MODIFIED="1762891352033" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/-Zaawansowany PYTHON-/-Projekt#2-" />
   </component>
 </project>
