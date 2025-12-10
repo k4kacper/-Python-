@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/static/style.css">
+  <title>nBank — Panel</title>
+</head>
+
+<body class="app-bg">
+
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar tile">
+    <div class="logo-big">nB</div>
+    <h2 class="side-title">nBank</h2>
+    <p class="side-user">Zalogowano jako: <span id="me">—</span></p>
+
+    <button id="btnLogout" class="btn-ghost w-full">Wyloguj</button>
+  </aside>
+
+  <!-- Content -->
+  <main class="content-area">
+
+    <div class="tiles-grid">
+
+      <!-- BALANCE -->
+      <div class="tile tile-big">
+        <h3>Saldo konta</h3>
+        <p class="balance" id="balance">— PLN</p>
+        <button id="btnRefresh" class="btn-secondary">Odśwież saldo</button>
+      </div>
+
+      <!-- TRANSFER -->
+      <div class="tile">
+        <h3>Przelew</h3>
+        <div class="transfer">
+          <input id="to" class="input" placeholder="Odbiorca">
+          <input id="amount" type="number" class="input" placeholder="Kwota">
+        </div>
+        <button id="btnTransfer" class="btn-primary w-full">Wyślij</button>
+      </div>
+
+      <!-- USERS -->
+      <div class="tile tile-scroll">
+        <h3>Użytkownicy</h3>
+        <ul id="users" class="users-list"></ul>
+      </div>
+
+      <!-- HISTORY / ACTIVITY -->
+<div class="tile tile-scroll">
+  <h3>Historia</h3>
+  <ul id="events" class="list"></ul>
+</div>
+
+  </main>
+
+</div>
+
+<div id="notifications" class="notifications"></div>
+<script src="/static/dashboard.js"></script>
+
+</body>
+</html>

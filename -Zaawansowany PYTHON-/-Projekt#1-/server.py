@@ -1,185 +1,132 @@
-import socket
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 import threading
-import json
-import traceback
+from typing import Dict, List
 
-# Adres hosta i port serwera
-HOST = "0.0.0.0"
-PORT = 9999
+app = FastAPI()
 
-# Blokady wątków – zabezpieczenie przed równoczesnym zapisem do danych
+# — Prosta baza w pamięci (reset przy restarcie) —
 db_lock = threading.Lock()
-clients_lock = threading.Lock()
-
-# Baza użytkowników w pamięci
-# Klucz: nazwa użytkownika, Wartość: słownik z hasłem i saldem
-users_db = {
+users_db: Dict[str, Dict] = {
     "alice": {"password": "alice123", "balance": 1000.0},
     "bob":   {"password": "bobpass",   "balance": 500.0},
     "carol": {"password": "carolpw",   "balance": 750.0},
 }
 
-# Lista aktywnych klientów: każdy to słownik {conn, addr, username}
-connected_clients = []
+# -- websocket manager (broadcast powiadomień) —
+class ConnectionManager:
+    def __init__(self):
+        self.active: List[WebSocket] = []
+        self.lock = threading.Lock()
 
-# Funkcja pomocnicza – wysyła dane w formacie JSON zakończone znakiem nowej linii
-def send_json(conn, obj):
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        with self.lock:
+            self.active.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        with self.lock:
+            if websocket in self.active:
+                self.active.remove(websocket)
+
+    async def broadcast(self, message: dict):
+        with self.lock:
+            conns = list(self.active)
+        for ws in conns:
+            try:
+                await ws.send_json(message)
+            except Exception:
+                # jeśli wysyłka nie powiodła się, odłączamy w kolejnym kroku
+                pass
+
+ws_manager = ConnectionManager()
+
+# -- Modele requestów --
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class TransferRequest(BaseModel):
+    from_user: str
+    to: str
+    amount: float
+
+# -- Endpoints API --
+@app.post("/api/login")
+def login(req: LoginRequest):
+    with db_lock:
+        user = users_db.get(req.username)
+        if not user or user.get("password") != req.password:
+            raise HTTPException(status_code=401, detail="Nieprawidłowy login lub hasło")
+        return {"username": req.username, "balance": user["balance"]}
+
+@app.get("/api/balance/{username}")
+def balance(username: str):
+    with db_lock:
+        user = users_db.get(username)
+        if not user:
+            raise HTTPException(status_code=404, detail="Użytkownik nie znaleziony")
+        return {"username": username, "balance": user["balance"]}
+
+@app.get("/api/users")
+def list_users():
+    with db_lock:
+        return [{"username": u, "balance": users_db[u]["balance"]} for u in users_db]
+
+@app.post("/api/transfer")
+async def transfer(req: TransferRequest):
+    if req.amount <= 0:
+        raise HTTPException(status_code=400, detail="Kwota musi być większa niż 0")
+    with db_lock:
+        sender = users_db.get(req.from_user)
+        receiver = users_db.get(req.to)
+        if not sender:
+            raise HTTPException(status_code=404, detail="Nadawca nie istnieje")
+        if not receiver:
+            raise HTTPException(status_code=404, detail="Odbiorca nie istnieje")
+        if sender["balance"] < req.amount:
+            raise HTTPException(status_code=400, detail="Niewystarczające środki")
+        sender["balance"] -= req.amount
+        receiver["balance"] += req.amount
+        new_balance = sender["balance"]
+
+    # Broadcast powiadomienia do wszystkich podłączonych websocketów
+    await ws_manager.broadcast({
+        "type": "notification",
+        "message": f"{req.from_user} przelał {req.amount:.2f} do {req.to}",
+        "from": req.from_user,
+        "to": req.to,
+        "amount": req.amount
+    })
+
+    return {"status": "ok", "balance": new_balance}
+
+# — websocket endpoint dla powiadomień —
+@app.websocket("/ws/notifications")
+async def websocket_endpoint(websocket: WebSocket):
+    await ws_manager.connect(websocket)
     try:
-        data = json.dumps(obj, ensure_ascii=False) + "\n"
-        conn.sendall(data.encode("utf-8"))
-    except Exception:
-        pass
-
-# Wysyła powiadomienie do wszystkich zalogowanych klientów
-def broadcast_notification(message, exclude_conn=None):
-    with clients_lock:
-        for c in connected_clients:
-            if c.get("username") and c["conn"] is not exclude_conn:
-                send_json(c["conn"], {"type": "notification", "message": message})
-
-# Obsługa pojedynczego klienta
-def handle_client(conn, addr):
-    client = {"conn": conn, "addr": addr, "username": None}
-    with clients_lock:
-        connected_clients.append(client)
-
-    try:
-        # Wysyła wiadomość powitalną natychmiast po połączeniu
-        send_json(conn, {"type": "welcome", "message": "Witaj w prostym serwerze bankowym. Zaloguj się (action:'login')."})
-
-        buffer = ""
         while True:
-            data = conn.recv(4096)
-            if not data:
-                break
-            buffer += data.decode("utf-8", errors="replace")
-            # Przetwarzanie pełnych linii zakończonych znakiem nowej linii
-            while "\n" in buffer:
-                line, buffer = buffer.split("\n", 1)
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    req = json.loads(line)
-                except json.JSONDecodeError:
-                    send_json(conn, {"type":"error", "message":"Nieprawidłowy JSON"})
-                    continue
+            data = await websocket.receive_text()
+            await websocket.send_json({"type": "pong", "echo": data})
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket)
+    except Exception:
+        ws_manager.disconnect(websocket)
 
-                action = req.get("action", "").lower()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-                # Logowanie użytkownika
-                if action == "login":
-                    username = req.get("username")
-                    password = req.get("password")
-                    if not username or not password:
-                        send_json(conn, {"type":"login_failed", "message":"Brakuje nazwy użytkownika lub hasła"})
-                        continue
-                    with db_lock:
-                        user = users_db.get(username)
-                        if user and user.get("password") == password:
-                            client["username"] = username
-                            send_json(conn, {"type":"login_ok", "message": f"Zalogowano jako {username}", "balance": user["balance"]})
-                            broadcast_notification(f"Użytkownik {username} się zalogował.", exclude_conn=conn)
-                        else:
-                            send_json(conn, {"type":"login_failed", "message":"Nieprawidłowy login lub hasło"})
-
-                # Żądanie sprawdzenia salda
-                elif action == "balance":
-                    if not client.get("username"):
-                        send_json(conn, {"type":"error", "message":"Nie jesteś zalogowany"})
-                        continue
-                    with db_lock:
-                        bal = users_db[client["username"]]["balance"]
-                    send_json(conn, {"type":"balance", "balance": bal})
-
-                # Żądanie listy wszystkich użytkowników
-                elif action == "list_users":
-                    if not client.get("username"):
-                        send_json(conn, {"type":"error", "message":"Nie jesteś zalogowany"})
-                        continue
-                    with db_lock:
-                        lst = [{"username": u, "balance": users_db[u]["balance"]} for u in users_db]
-                    send_json(conn, {"type":"users", "users": lst})
-
-                # Wykonanie przelewu
-                elif action == "transfer":
-                    if not client.get("username"):
-                        send_json(conn, {"type":"error", "message":"Nie jesteś zalogowany"})
-                        continue
-                    to_user = req.get("to")
-                    amount = req.get("amount")
-                    if to_user is None or amount is None:
-                        send_json(conn, {"type":"error", "message":"Brakuje danych (to/amount)"})
-                        continue
-                    try:
-                        amount = float(amount)
-                    except Exception:
-                        send_json(conn, {"type":"error", "message":"Nieprawidłowa kwota"})
-                        continue
-                    if amount <= 0:
-                        send_json(conn, {"type":"error", "message":"Kwota musi być większa niż 0"})
-                        continue
-                    with db_lock:
-                        sender = users_db.get(client["username"])
-                        receiver = users_db.get(to_user)
-                        if not receiver:
-                            send_json(conn, {"type":"error", "message":"Odbiorca nie istnieje"})
-                            continue
-                        if sender["balance"] < amount:
-                            send_json(conn, {"type":"error", "message":"Niewystarczające środki"})
-                            continue
-                        # Aktualizacja sald po przelewie
-                        sender["balance"] -= amount
-                        receiver["balance"] += amount
-                        sender_balance = sender["balance"]
-                    # Potwierdzenie dla nadawcy
-                    send_json(conn, {"type":"transfer_ok", "message": f"Przelew do {to_user} wykonany", "balance": sender_balance})
-                    # Powiadomienie innych klientów
-                    broadcast_notification(f"{client['username']} przelał {amount:.2f} do {to_user}.", exclude_conn=None)
-
-                # Wylogowanie użytkownika
-                elif action == "logout":
-                    if client.get("username"):
-                        name = client["username"]
-                        client["username"] = None
-                        send_json(conn, {"type":"logout_ok", "message":"Wylogowano"})
-                        broadcast_notification(f"Użytkownik {name} się wylogował.", exclude_conn=None)
-                    else:
-                        send_json(conn, {"type":"error", "message":"Nie byłeś zalogowany"})
-                else:
-                    send_json(conn, {"type":"error", "message":"Nieznana akcja"})
-
-    except Exception as e:
-        print("Błąd w wątku klienta:", e)
-        traceback.print_exc()
-    finally:
-        # Usunięcie klienta z listy i zamknięcie połączenia
-        with clients_lock:
-            if client in connected_clients:
-                connected_clients.remove(client)
-        if client.get("username"):
-            broadcast_notification(f"Użytkownik {client['username']} rozłączył się.", exclude_conn=None)
-        try:
-            conn.close()
-        except Exception:
-            pass
-        print("Połączenie zamknięte:", addr)
-
-# Główna funkcja uruchamiająca serwer
-def main():
-    print(f"Start serwera na {HOST}:{PORT}")
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((HOST, PORT))
-        s.listen(50)
-        try:
-            while True:
-                conn, addr = s.accept()
-                print("Nowe połączenie od", addr)
-                t = threading.Thread(target=handle_client, args=(conn, addr), daemon=True)
-                t.start()
-        except KeyboardInterrupt:
-            print("Zatrzymywanie serwera...")
+@app.get("/")
+def root():
+    return FileResponse("static/index.html")
 
 if __name__ == "__main__":
-    main()
+    import uvicorn
+    uvicorn.run(
+        "server:app",
+        host="127.0.0.1",
+        port=9090,
+        reload=True
+    )

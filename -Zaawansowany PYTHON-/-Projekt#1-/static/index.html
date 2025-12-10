@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/static/style.css">
+  <title>nBank — Logowanie</title>
+</head>
+<body class="auth-bg">
+
+  <div class="auth-wrapper">
+    <div class="auth-card tile">
+
+      <div class="brand-login">
+        <div class="logo">nB</div>
+        <h1>nBank</h1>
+        <p>Bezpieczne logowanie</p>
+      </div>
+
+      <input id="username" class="input" placeholder="Nazwa użytkownika">
+      <input id="password" class="input" type="password" placeholder="Hasło">
+
+      <button id="btnLogin" class="btn-primary w-full">Zaloguj</button>
+    </div>
+  </div>
+
+  <div id="notifications" class="notifications"></div>
+  <script src="/static/login.js"></script>
+
+</body>
+</html>

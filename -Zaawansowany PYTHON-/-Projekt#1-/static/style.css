@@ -1,0 +1,241 @@
+/* ========= GLOBAL ========= */
+:root{
+  --bg-light: #f5f7fb;
+  --bg-lighter: #ffffff;
+  --tile: #ffffff;
+  --tile-hover: #f0f4ff;
+  --border: #dbe3f3;
+
+  --text: #1a2540;
+  --muted: #8492b3;
+
+  --primary: #4f7cff;
+  --primary-light: #7fa1ff;
+  --secondary: #34d399;
+
+  --radius: 16px;
+  --shadow: 0 8px 28px rgba(40,60,120,0.12);
+  --font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
+}
+
+*{box-sizing:border-box}
+body{margin:0;
+  font-family: var(--font), serif;}
+
+/* ========= AUTH PAGE ========= */
+.auth-bg{
+  background: linear-gradient(180deg,#e9f1ff,#f4f7ff);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.auth-wrapper{
+  width:100%;
+  max-width:380px;
+}
+
+.auth-card{
+  padding:30px;
+  border-radius:var(--radius);
+  background:var(--tile);
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.brand-login{
+  text-align:center;
+  margin-bottom:12px;
+}
+.brand-login .logo{
+  width:64px;height:64px;border-radius:16px;
+  margin:0 auto 10px;
+  background:var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-weight:700;font-size:24px;
+  box-shadow:var(--shadow);
+}
+
+/* ========= INPUTS / BUTTONS ========= */
+.input{
+  width:100%;
+  margin: 0 0 10px 0;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  font-size:14px;
+  outline:none;
+  background:white;
+}
+.input:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(79,124,255,0.25);
+}
+
+.btn-primary{
+  background:var(--primary);
+  color:white;
+  padding:12px 16px;
+  border:0;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  width:auto;
+}
+.btn-primary:hover{
+  background:var(--primary-light);
+}
+
+.btn-secondary{
+  background:var(--secondary);
+  color:white;
+  padding:10px 14px;
+  border:0;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-ghost{
+  border:1px solid var(--border);
+  background:white;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* width helper */
+.w-full{width:100%}
+
+/* ========= DASHBOARD ========= */
+.app-bg{
+  background:var(--bg-light);
+  min-height:100vh;
+  padding:24px;
+}
+
+.dashboard-layout{
+  max-width:1300px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:24px;
+}
+@media(max-width:900px){
+  .dashboard-layout{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ========= SIDEBAR ========= */
+.sidebar{
+  background:var(--tile);
+  border-radius:var(--radius);
+  padding:22px;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.logo-big{
+  width:60px;height:60px;border-radius:14px;
+  background:var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-weight:700;font-size:26px;
+  box-shadow:var(--shadow);
+}
+
+.side-title{
+  margin:0;font-size:20px;color:var(--text);
+}
+.side-user{
+  margin:0;font-size:14px;color:var(--muted);
+}
+
+/* ========= CONTENT ========= */
+.content-area{
+  display:flex;
+  flex-direction:column;
+}
+
+.tiles-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:22px;
+}
+
+/* ========= TILE ========= */
+.tile{
+  background:var(--tile);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+  transition:0.2s;
+}
+.tile:hover{
+  background:var(--tile-hover);
+}
+
+.tile-big{
+  grid-column:span 2;
+}
+@media(max-width:900px){
+  .tile-big{grid-column:span 1;}
+}
+
+.tile-scroll{
+  max-height:350px;
+  overflow:auto;
+}
+
+/* Tile titles */
+.tile h3{
+  margin:0 0 10px;
+  font-size:18px;
+  font-weight:700;
+  color:var(--text);
+}
+
+/* Balance */
+.balance{
+  font-size:32px;
+  font-weight:800;
+  color:var(--primary);
+  margin:8px 0 16px;
+}
+
+/* Lists */
+.users-list{
+  list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;
+}
+.users-list li{
+  padding:10px 12px;
+  background:white;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+
+/* ========= NOTIFICATIONS ========= */
+.notifications{
+  position:fixed;
+  right:20px;top:20px;
+  display:flex;flex-direction:column;gap:12px;
+  width:320px;
+}
+.notification{
+  background:white;
+  border-left:4px solid var(--primary);
+  padding:12px;
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  animation:fadeIn .25s ease;
+}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateX(10px);}
+  to{opacity:1;transform:translateX(0);}
+}
